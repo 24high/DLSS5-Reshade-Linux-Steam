@@ -44,7 +44,7 @@ not launch.
 ## Install
 
 ```
-git clone https://github.com/OWNER/DLSS5-Reshade-Linux-Steam
+git clone https://github.com/24high/DLSS5-Reshade-Linux-Steam
 cd DLSS5-Reshade-Linux-Steam
 ./dlss5-install.sh [options] /path/to/game.exe
 ```
