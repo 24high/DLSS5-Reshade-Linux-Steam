@@ -17,16 +17,20 @@ Everything here is a wrapper. The actual work is done by
 
 ## Status
 
-Verified on one machine: RTX 4080, driver 610.57.04, GE-Proton11-3, Ubuntu 24.04,
-The Lord of the Rings Online (Direct3D 11, no native DLSS).
+Verified on one machine: RTX 4080, driver 610.57.04, GE-Proton11-3, Ubuntu 24.04.
 
-| | Result |
-| --- | --- |
-| Neural rendering, `nr` mode | 303,000 evaluates over 77 minutes, zero failures |
-| DLAA, `dlaa` mode | 0.6 ms/frame at 1920x1080, 140 fps unchanged |
-| Bridge overhead, `nr` mode | 0.66 ms/frame, 6% of frame time |
+| Game | Renderer | Result |
+| --- | --- | --- |
+| The Lord of the Rings Online | D3D11, no native DLSS | `nr`: 303,000 evaluates over 77 minutes, zero failures. Bridge 0.66 ms/frame, 6% of frame time |
+| Galactic Civilizations IV | D3D11, no native DLSS | `nr`: neural rendering running, 1,800 evaluates, zero failures |
+| International Trading League | D3D11, no native DLSS | `dlaa`: 0.6 ms/frame at 1920x1080, frame rate unchanged |
 
 Both modes work. They are alternatives, not layers: pick one.
+
+What this cannot do is improve a game that has nothing to gain. The substitute
+contract is fed approximated inputs and runs on the presented frame, UI
+included; on a flat 2D or menu-heavy title the honest outcome is softer text,
+not a better picture. It belongs on 3D scenes with motion.
 
 ## Requirements
 
