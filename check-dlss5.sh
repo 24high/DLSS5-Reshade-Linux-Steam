@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Dennis Michael Heine
 #
 # check-dlss5.sh -- report the state of a dlss5-install.sh installation
 #
@@ -10,6 +12,19 @@
 # the file is absent (installations made before the installer existed).
 #
 set -uo pipefail
+
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <https://www.gnu.org/licenses/>.
 
 MODEL_REF_SHA=e16bcf15e16e13f527491cdf7845b2fe6521a738d8f7c9c721866a8496e1fc8e
 MODEL_R40_SHA=4b8d19bc3eff58a084f5eca7489c921501c203450169fb82ff4f649a4482ba05
@@ -41,7 +56,7 @@ case "${1:-}" in
          done
        fi
        [ -n "$GAMEDIR" ] || { echo "No installation found. Pass the game exe or directory." >&2; exit 1; } ;;
-  -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  -h|--help) awk 'NR==1{next} /^# *(SPDX|Copyright)/{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"; exit 0 ;;
   *)   if   [ -f "$1" ]; then GAMEDIR="$(cd "$(dirname "$1")" && pwd)"
        elif [ -d "$1" ]; then GAMEDIR="$(cd "$1" && pwd)"
        else echo "Not found: $1" >&2; exit 1

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Dennis Michael Heine
 #
 # dlss5-install.sh -- DLSS 5 / DLAA for a Windows game under Steam Proton (Linux, NVIDIA)
 #
@@ -28,6 +30,19 @@
 # Re-running with a different --mode only switches over, it downloads nothing.
 #
 set -euo pipefail
+
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program.  If not, see <https://www.gnu.org/licenses/>.
 
 VERSION=1.1
 
@@ -71,7 +86,7 @@ warn() { printf '  [warn] %s\n' "$*" >&2; }
 die()  { printf '\n[ERROR] %s\n' "$*" >&2; exit 1; }
 
 usage() {
-  awk 'NR==1{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"
+  awk 'NR==1{next} /^# *(SPDX|Copyright)/{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"
   cat <<'USAGE'
 Options:
   --mode nr|dlaa     Which add-on path is active (default: nr)

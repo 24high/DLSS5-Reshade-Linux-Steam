@@ -285,3 +285,22 @@ can be ignored.
 - [vortigern11/vort_Shaders](https://github.com/vortigern11/vort_Shaders) — MIT
 - [crosire/reshade](https://github.com/crosire/reshade)
 - flshy1337, for the descriptor-converter analysis in dlss5-bridge #22
+
+## License
+
+Copyright (C) 2026 Dennis Michael Heine
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. See [LICENSE](LICENSE).
+
+GPL-3 rather than a permissive licence because the recipe these scripts
+automate comes from GPL-3 work: `addon-dlssnr-linux` is GPL-3 and derives from
+OptiScaler, which is GPL-3 as well. The scripts here contain none of that code,
+they only install it.
+
+Nothing in this repository redistributes NVIDIA binaries. `nvngx_dlssnr.dll`,
+`nvngx_dlss.dll`, `nvngx_dlssg.dll` and `d3dcompiler_47.dll` are downloaded from
+their upstream sources, taken from your installed driver, or copied from a game
+already on your disk, and are checked against a known hash where one exists.
