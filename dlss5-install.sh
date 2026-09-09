@@ -49,7 +49,8 @@ VERSION=1.1
 RESHADE_VER=6.8.0
 BRIDGE_VER=v1.4.8
 DLSSNR_LINUX_VER=v0.2.1
-AIO_VER=v2.0.3
+AIO_VER=v2.2.1
+AIO_SHA64=003532014748ac6bc5c6a9ef5048b31f8aec7690dbf79d5f523ae5e2a04ee2f8
 DLSS_SDK_VER=v310.7.0
 
 MODEL_REF_SHA=e16bcf15e16e13f527491cdf7845b2fe6521a738d8f7c9c721866a8496e1fc8e
@@ -287,7 +288,7 @@ if [ "$DO_UNINSTALL" = 1 ]; then
            nvngx_dlssnr.310.8.0-reference.dll.bak nvngx_dlssnr.310.8.0-RTX40.dll.bak; do
     [ -e "$GAMEDIR/$f" ] && rm -f "$GAMEDIR/$f" && say "  removed: $f"
   done
-  rm -rf "$DIS" "$GAMEDIR/reshade-shaders"
+  rm -rf "$DIS" "$GAMEDIR/reshade-shaders" "$GAMEDIR/licenses"
   rm -f "$STATE"
   BK="$(ls -d "$GAMEDIR"/_dlss5-backup-* 2>/dev/null | tail -1 || true)"
   if [ -n "$BK" ]; then
@@ -354,12 +355,11 @@ fetch "dlssnr-linux.addon64" \
 fetch "nvngx.dll_nrfwd.dll" \
       "https://github.com/NapXDD/addon-dlssnr-linux/releases/download/${DLSSNR_LINUX_VER}/nvngx.dll_nrfwd.dll"
 
-fetch "standalone-dlssnr.addon64" \
-      "https://github.com/kibblerz/DLSS5-Reshade-AIO/releases/download/${AIO_VER}/standalone-dlssnr.addon64"
-fetch "aio-nvngx.dll" \
-      "https://github.com/kibblerz/DLSS5-Reshade-AIO/releases/download/${AIO_VER}/nvngx.dll"
-fetch "DLSS5_AIO_Feed.fx" \
-      "https://github.com/kibblerz/DLSS5-Reshade-AIO/releases/download/${AIO_VER}/DLSS5_AIO_Feed.fx"
+# Since v2.1.0 the AIO ships one ready-laid-out archive per architecture
+# instead of loose files, with published checksums.
+fetch "DLSS5-ReShade-AIO-${AIO_VER}-64-bit.zip" \
+      "https://github.com/kibblerz/DLSS5-Reshade-AIO/releases/download/${AIO_VER}/DLSS5-ReShade-AIO-${AIO_VER}-64-bit.zip" \
+      "$AIO_SHA64"
 
 # The NR model is 166 MB unpacked. If it already sits unpacked in the cache with
 # a matching hash, the 110 MB zip is never downloaded.
@@ -416,6 +416,18 @@ case "$MODEL" in
   ref)   ok "model build: 310.8.0 reference (verified on RTX 50)" ;;
   rtx40) ok "model build: 310.8.0-RTX40 (verified on RTX 40 / Ada)" ;;
 esac
+
+# The AIO zip stores paths with backslashes. unzip resolves them but warns and
+# exits 1, and it restores directory modes that block traversal.
+AIOTMP="$(mktemp -d)"; trap 'rm -f "$TMPROOTS"; rm -rf "$AIOTMP"' EXIT
+unzip -q -o "$CACHE/DLSS5-ReShade-AIO-${AIO_VER}-64-bit.zip" -d "$AIOTMP" || true
+chmod -R u+rwX "$AIOTMP"
+[ -f "$AIOTMP/standalone-dlssnr.addon64" ] || die "AIO zip did not unpack as expected."
+[ -f "$AIOTMP/nvngx.dll" ]                 || die "AIO zip has no caller bridge."
+# The rest of the script places these through the cache, under stable names.
+install -m 644 "$AIOTMP/standalone-dlssnr.addon64" "$CACHE/standalone-dlssnr.addon64"
+install -m 644 "$AIOTMP/nvngx.dll"                 "$CACHE/aio-nvngx.dll"
+ok "AIO ${AIO_VER} unpacked ($(find "$AIOTMP" -type f | wc -l) files)"
 
 # ---------------------------------------------------------------- backup
 # Only back up on the very first run. Otherwise a mode switch would save this
@@ -531,7 +543,8 @@ fi
 SH="$GAMEDIR/reshade-shaders/Shaders"
 TX="$GAMEDIR/reshade-shaders/Textures"
 mkdir -p "$SH" "$TX"
-install -m 644 "$CACHE/DLSS5_AIO_Feed.fx" "$SH/DLSS5_AIO_Feed.fx"
+# v2.2.1 ships StandaloneBoundary.fx alongside DLSS5_AIO_Feed.fx.
+[ -d "$AIOTMP/reshade-shaders/Shaders" ] && cp -a "$AIOTMP/reshade-shaders/Shaders"/. "$SH/"
 
 # Standard collection goes flat into Shaders/, mainly for ReShade.fxh.
 if [ ! -f "$SH/ReShade.fxh" ]; then
@@ -542,6 +555,7 @@ if [ ! -f "$SH/ReShade.fxh" ]; then
   rm -rf "$tmp"
 fi
 ok "shaders: ReShade standard collection (slim)"
+[ -d "$AIOTMP/licenses" ] && cp -a "$AIOTMP/licenses" "$GAMEDIR/" && ok "licenses/ from the AIO package"
 
 # vort_Shaders, textures included, only for the nr mode. In dlaa mode it is dead
 # weight: ReShade compiles every effect in the search path whether the technique

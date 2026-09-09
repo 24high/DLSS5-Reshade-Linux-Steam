@@ -156,6 +156,12 @@ has no motion vectors. `dlaa` needs no shader at all.
 D3D12 NGX device and runs DLSS super resolution at native resolution. Cheap,
 stable, and the more mature pipeline of the two.
 
+Since v2.2.0 it drives NVIDIA Optical Flow itself and makes that its default
+motion source, which its author reports as substantially less boiling, smearing
+and ghosting. That is worth noting next to the `nr` mode, where the bridge's own
+optical flow request is refused by the driver (`API version 0x20`,
+`INVALID_PTR`) and motion vectors come from a ReShade shader instead.
+
 Its neural rendering goes through the driver's NGX dispatch, which refuses
 feature 18 on Ada. The installer therefore writes `NeuralRendering=0` on RTX 40
 and `NeuralRendering=1` on RTX 50.
@@ -187,7 +193,7 @@ Into the directory holding the executable:
 | `dxgi.dll` | ReShade 6.8.0, add-on build, extracted from the official installer |
 | `dlss5-bridge.addon64` | dlss5-bridge v1.4.8 |
 | `dlssnr-linux.addon64`, `nvngx.dll_nrfwd.dll` | addon-dlssnr-linux v0.2.1 |
-| `standalone-dlssnr.addon64`, `nvngx.dll` | DLSS5-Reshade-AIO v2.0.3 |
+| `standalone-dlssnr.addon64`, `nvngx.dll` | DLSS5-Reshade-AIO v2.2.1, from the published ZIP, checksum verified |
 | `nvngx_dlssnr.dll` | RankFTW/rhi-repo, hash-checked |
 | `nvngx_dlss.dll` | NVIDIA DLSS SDK v310.7.0 |
 | `nvngx_dlssg.dll` | your installed driver |

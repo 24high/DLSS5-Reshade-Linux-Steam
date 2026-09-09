@@ -47,6 +47,7 @@ VERSION=1.0
 
 RESHADE_VER=6.8.0
 AIO_VER=v2.2.1
+AIO_SHA32=e504c76f84080fcb90bb7851f9954b246e61859b31faddb6994fd61f194ec1f4
 DLSS_SDK_VER=v310.7.0
 
 MODEL_REF_SHA=e16bcf15e16e13f527491cdf7845b2fe6521a738d8f7c9c721866a8496e1fc8e
@@ -328,7 +329,8 @@ else
 fi
 
 fetch "DLSS5-ReShade-AIO-${AIO_VER}-32-bit.zip" \
-      "https://github.com/kibblerz/DLSS5-Reshade-AIO/releases/download/${AIO_VER}/DLSS5-ReShade-AIO-${AIO_VER}-32-bit.zip"
+      "https://github.com/kibblerz/DLSS5-Reshade-AIO/releases/download/${AIO_VER}/DLSS5-ReShade-AIO-${AIO_VER}-32-bit.zip" \\
+      "$AIO_SHA32"
 
 ensure_model() {  # <zipname> <url> <sha256> <cache-filename>
   if [ -s "$CACHE/$4" ] && [ "$(sha256sum "$CACHE/$4" | cut -d' ' -f1)" = "$3" ]; then
