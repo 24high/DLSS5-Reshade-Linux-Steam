@@ -45,6 +45,46 @@ The game must already run under Proton. Check
 [ProtonDB](https://www.protondb.com/) first; this cannot fix a game that does
 not launch.
 
+## 32-bit games
+
+`dlss5-install.sh` refuses a 32-bit executable, because NGX has no 32-bit
+runtime: NVIDIA ships none, the driver puts `_nvngx.dll` in `system32` and
+leaves `syswow64` empty, and the DLSS SDK has no `Windows_x86` build.
+
+`dlss5-install-x86.sh` covers those games through DLSS5-Reshade-AIO's two-process
+design. A 32-bit add-on loads inside the game and starts a 64-bit wrapper that
+does the NGX work, so the folder ends up with two ReShade installations:
+
+```
+game.exe
+dxgi.dll                     32-bit ReShade, add-on build
+d3dcompiler_47.dll           32-bit
+standalone-dlssnr.addon32    the carrier
+host64/
+  dxgi.dll                   64-bit ReShade, add-on build
+  d3dcompiler_47.dll         64-bit
+  AIO DLSS5 32-bit Wrapper.exe
+  standalone-dlssnr.addon64  where neural rendering runs
+  nvngx_dlssnr.dll  nvngx_dlss.dll  nvngx_dlssg.dll
+```
+
+```
+./dlss5-install-x86.sh /path/to/game32.exe
+./dlss5-install-x86.sh --api d3d9 /path/to/oldgame.exe
+```
+
+Native D3D9 and D3D11 are supported. A D3D9 game needs `--api d3d9`, which names
+the proxy `d3d9.dll` and moves any `dxgi.dll` aside — the bridge needs Windows'
+real DXGI, and a second proxy there stops the add-on loading. `--uninstall` puts
+it back.
+
+The `nr` mode does not exist here. `dlss5-bridge` and `addon-dlssnr-linux` ship
+64-bit add-ons only.
+
+**Untested at runtime.** The installation itself is verified — every file lands
+in the right place with the right bitness, install and uninstall are clean — but
+no 32-bit game has been launched with it yet.
+
 ## Install
 
 ```
@@ -274,7 +314,8 @@ can be ignored.
 
 | | |
 | --- | --- |
-| `dlss5-install.sh` | Installer |
+| `dlss5-install.sh` | Installer for 64-bit games |
+| `dlss5-install-x86.sh` | Installer for 32-bit games, AIO two-process path |
 | `check-dlss5.sh` | Post-run report |
 | `set-steam-launch-options.sh` | Writes the launch options into `localconfig.vdf`. Steam must be closed. |
 
